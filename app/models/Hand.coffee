@@ -4,7 +4,34 @@ class window.Hand extends Backbone.Collection
 
   initialize: (array, @deck, @isDealer) ->
 
-  hit: -> @add(@deck.pop()).last()
+  hit: -> 
+    @add(@deck.pop()).last()
+    @bustCheck()
+
+  stand: -> 
+    @trigger('stand', @)
+
+  bustCheck: ->
+    bust = true;
+    for scores in @scores()
+      if scores < 22 then bust = false;
+    if bust is true
+      if @isDealer is true 
+        alert "Dealer Loses!!" 
+      else alert "You Lose!!"
+      window.location.reload()
+    return bust;
+
+  dealerPhase: -> 
+    if @isDealer
+      for scores in @scores()
+        if 21 >= scores >= 17
+          @trigger('compare', @)
+          break
+        else
+          @hit()
+          if @bustCheck() isnt true
+            @dealerPhase()
 
   scores: ->
     # The scores are an array of potential scores.
